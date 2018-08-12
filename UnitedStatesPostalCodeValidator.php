@@ -37,8 +37,8 @@ class UnitedStatesPostalCodeValidator {
     public function isValid($country, $state, $zip) {
 
         if ($country != 'US') {
-            $this->_reason = 'Postal validator only works for US addresses.';
-            return true; // skip
+            $this->_reason = 'UnitedStatesPostalCodeValidator only works for US addresses.';
+            return false;
         }
 
         if (strlen($zip) < 5) {
@@ -58,18 +58,31 @@ class UnitedStatesPostalCodeValidator {
             return true;
         }
 
-        // call webservice to validate
+        // call vendor api to validate
         return self::CloudValidate($state, $zip);
     }
 
+    /**
+     * For a better understanding of what this is doing check here:
+     * https://smartystreets.com/docs/zip-codes-101
+     * 
+     * @param string $state
+     * @param string $zip
+     * @return boolean
+     */
     public function isValidRegion($state, $zip) {
 
+        if (strlen($state) != 2) {
+            $this->_reason = 'Unknown state provided for UnitedStatesPostalCodeValidator';
+            return false;
+        }
+        
         $region = substr($zip, 0, 3);
         if (!is_numeric($region)) {
+            $this->_reason = 'Invalid postal code content.';
             return false;
         }
 
-        // 3 digit regions
         if ($region >= 980 && $region <= 994 && ($state == 'WA')) {
             return true;
         }
